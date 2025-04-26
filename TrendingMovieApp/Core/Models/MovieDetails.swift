@@ -8,7 +8,7 @@ import Foundation
 
 // MARK: - model Movie details
 struct MovieDetails: Codable {
-    let title, description, tagline, year: String
+    let title, description, tagline, year: String?
     let releaseDate, imdbID, imdbRating, voteCount: String
     let popularity, youtubeTrailerKey, rated: String
     let runtime: Int

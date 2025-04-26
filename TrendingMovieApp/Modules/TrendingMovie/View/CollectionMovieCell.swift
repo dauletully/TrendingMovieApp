@@ -34,7 +34,7 @@ class CollectionMovieCell: UICollectionViewCell {
         
         self.layer.cornerRadius = 12
         self.clipsToBounds = true
-        self.layer.borderColor = UIColor.systemGray.cgColor
+        self.layer.borderColor = UIColor.lightGray.cgColor
         self.layer.borderWidth = 2
         
     }

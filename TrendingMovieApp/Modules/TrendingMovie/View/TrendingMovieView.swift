@@ -21,11 +21,27 @@ class TrendingMovieView: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private lazy var searchTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Search movies..."
+        textField.backgroundColor = .white
+        textField.layer.cornerRadius = 8
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.clearButtonMode = .whileEditing
+        textField.setLeftIcon(UIImage(systemName: "magnifyingglass")!)
+        textField.font = UIFont.systemFont(ofSize: 20)
+        textField.textColor = .black
+        textField.delegate = self
+        
+        return textField
+    }()
+    
     private lazy var movieCollectionView: UICollectionView = {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: 343, height: 100)
+        layout.itemSize = CGSize(width: 343, height: 80)
         layout.sectionInsetReference = .fromSafeArea
         layout.sectionInset = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
         layout.minimumLineSpacing = 16
@@ -40,7 +56,7 @@ class TrendingMovieView: UIViewController {
         
         return collectionView
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -50,6 +66,7 @@ class TrendingMovieView: UIViewController {
         DispatchQueue.main.async {
             self.viewModel.fetchMovie()
         }
+        
     }
     
     private func setupBinding() {
@@ -57,22 +74,34 @@ class TrendingMovieView: UIViewController {
             self?.movieCatalog = movieCatalog
             self?.movieCollectionView.reloadData()
         }
+        viewModel.onMovieSelected = { [weak self] movieID in
+            guard let self = self else { return }
+            let detailViewController = TrendingMovieDetailsView()
+            detailViewController.id = movieID
+            self.navigationController?.pushViewController(detailViewController, animated: true)
+        }
     }
     
     private func setupUI() {
         view.backgroundColor = .white
+        view.addSubview(searchTextField)
         view.addSubview(movieCollectionView)
     }
     
     private func setupConstraints() {
+        searchTextField.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.height.equalTo(25)
+        }
         movieCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(100)
+            make.top.equalTo(searchTextField.snp.bottom).offset(20)
             make.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }
 
-extension TrendingMovieView: UICollectionViewDelegate, UICollectionViewDataSource {
+extension TrendingMovieView: UICollectionViewDelegate, UICollectionViewDataSource, UITextFieldDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return movieCatalog?.count ?? 0
     }
@@ -84,5 +113,18 @@ extension TrendingMovieView: UICollectionViewDelegate, UICollectionViewDataSourc
         
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        viewModel.didSelectItem(with: movieCatalog?[indexPath.row].imdbID ?? "")
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let searchText = textField.text, !searchText.isEmpty else { return false }
+        
+        viewModel.fetchMovieByTitle(with: searchText)
+        textField.resignFirstResponder()
+        return true
+    }
+    
 }
 

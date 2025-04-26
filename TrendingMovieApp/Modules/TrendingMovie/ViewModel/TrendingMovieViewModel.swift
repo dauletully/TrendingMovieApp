@@ -16,6 +16,14 @@ class TrendingMovieViewModel {
     
     public var onMovieFetched: (([MovieResult]?) -> Void)?
     
+    public var onMovieSelected: ((String) -> Void)?
+    
+    
+    func didSelectItem(with id: String) {
+    
+        onMovieSelected?(id)
+    }
+    
     func fetchMovie() {
         APIManager.shared.fetchTrendingMovies { result in
             DispatchQueue.main.async {
@@ -25,6 +33,20 @@ class TrendingMovieViewModel {
                 case .success(let movie):
                     self.movies = movie.movieResults
                     print("Fetched Movies")
+                }
+            }
+        }
+    }
+    
+    func fetchMovieByTitle(with text: String) {
+        APIManager.shared.fetchMoviesByTitle(title: text) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                case .success(let movie):
+                    self.movies = movie.movieResults
+                    print("Movie fetched")
                 }
             }
         }

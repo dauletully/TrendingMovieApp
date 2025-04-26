@@ -12,18 +12,17 @@ class TrendingMovieDetailsViewModel {
             onMovieDetailsFetched?(movieDetails)
         }
     }
-    
     public var onMovieDetailsFetched: ((MovieDetails?) -> Void)?
+    public var onErrorFetched: (() -> Void)?
     
-    func fetchMovieDetails(id: Int) {
+    func fetchMovieDetails(id: String) {
         APIManager.shared.fetchMovieDetails(id: id) { result in
             DispatchQueue.main.async {
                 switch result {
                     case .success(let movieDetails):
                     self.movieDetails = movieDetails
-                    print(movieDetails)
                 case .failure(let error):
-                    print(error)
+                    self.onErrorFetched?()
                 }
             }
         }
