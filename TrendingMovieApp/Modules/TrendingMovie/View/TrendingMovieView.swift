@@ -119,6 +119,10 @@ extension TrendingMovieView: UICollectionViewDelegate, UICollectionViewDataSourc
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text == "" {
+            viewModel.fetchMovie()
+            return true
+        }
         guard let searchText = textField.text, !searchText.isEmpty else { return false }
         
         viewModel.fetchMovieByTitle(with: searchText)
