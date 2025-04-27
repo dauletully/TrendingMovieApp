@@ -12,12 +12,16 @@ class TrendingMovieDetailsViewModel {
             onMovieDetailsFetched?(movieDetails)
         }
     }
+    var onLoadingStateChange: ((Bool) -> Void)?
     public var onMovieDetailsFetched: ((MovieDetails?) -> Void)?
     public var onErrorFetched: (() -> Void)?
     
     func fetchMovieDetails(id: String) {
+        onLoadingStateChange?(true)
+        
         APIManager.shared.fetchMovieDetails(id: id) { result in
             DispatchQueue.main.async {
+                self.onLoadingStateChange?(false)
                 switch result {
                     case .success(let movieDetails):
                     self.movieDetails = movieDetails

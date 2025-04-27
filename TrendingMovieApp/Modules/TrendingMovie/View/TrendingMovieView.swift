@@ -119,14 +119,22 @@ extension TrendingMovieView: UICollectionViewDelegate, UICollectionViewDataSourc
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField.text == "" {
-            viewModel.fetchMovie()
-            return true
-        }
+
         guard let searchText = textField.text, !searchText.isEmpty else { return false }
         
         viewModel.fetchMovieByTitle(with: searchText)
         textField.resignFirstResponder()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+        
+        if updatedText.isEmpty {
+            viewModel.fetchMovie() // Показать основной список
+        }
         return true
     }
     

@@ -26,6 +26,14 @@ class TrendingMovieDetailsView: UIViewController {
         return view
     }()
     
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .gray
+        indicator.hidesWhenStopped = true
+        
+        return indicator
+    }()
+    
     //Title
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -172,10 +180,18 @@ class TrendingMovieDetailsView: UIViewController {
         viewModel.onErrorFetched = { [weak self] in
             self?.showEmptyAlert()
         }
+        viewModel.onLoadingStateChange = { [weak self] isLoading in
+                    if isLoading {
+                        self?.loadingIndicator.startAnimating()
+                    } else {
+                        self?.loadingIndicator.stopAnimating()
+                    }
+                }
     }
     
     private func setupUI() {
         view.addSubview(scrollView)
+        view.addSubview(loadingIndicator)
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(tagLine)
@@ -190,12 +206,13 @@ class TrendingMovieDetailsView: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
         contentView.snp.makeConstraints {  make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
         }
-        
+        loadingIndicator.snp.makeConstraints { make in
+            make.center.equalTo(contentView)
+        }
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(40)
             make.left.right.equalToSuperview().inset(20)
